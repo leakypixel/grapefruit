@@ -1,0 +1,19 @@
+{
+  "name": "grapefruit",
+  "version": "0.0.1",
+  "description": "A simple asset composer.",
+  "main": "grapefruit.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/leakypixel/grapefruit.git"
+  },
+  "author": "Craig Fletcher <hi@leakypixel.net>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/leakypixel/grapefruit/issues"
+  },
+  "homepage": "https://github.com/leakypixel/grapefruit#readme"
+}
