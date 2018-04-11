@@ -1,5 +1,8 @@
 # grapefruit
 A simple asset composer.
 
-## Usage
-Documentation not yet done; see the example directory.
+* May or may not work
+* No tests
+* No documentation
+* No support
+* Works on my machine
