@@ -15,5 +15,10 @@
   "bugs": {
     "url": "https://github.com/leakypixel/grapefruit/issues"
   },
+  "dependencies": {
+    "careless-fs": "^1.0.0",
+    "handlebars": "^4.0.11",
+    "markdown": "^0.5.0"
+  },
   "homepage": "https://github.com/leakypixel/grapefruit#readme"
 }
