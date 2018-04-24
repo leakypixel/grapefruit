@@ -5,42 +5,54 @@
       "data": {
         "test": "success"
       },
-      "jobs": {
-        "template": {
+      "jobs": [
+        {
+          "name": "template",
           "composers": ["readInFile"],
           "bufferName": "templates",
-          "files": [{
-            "path": "./templates/example.html",
-            "name": "example"
-          },{
-            "path": "./templates/example.html",
-            "name": "anotherExample"
-          }]
+          "files": [
+            {
+              "path": "./templates/example.html",
+              "name": "example"
+            },
+            {
+              "path": "./templates/example.html",
+              "name": "anotherExample"
+            }
+          ]
         },
-        "markdown": {
-          "composers": ["readInFile"], 
+        {
+          "name": "markdown",
+          "composers": ["readInFile"],
           "bufferName": "markdown",
-          "files": [{
-            "path": "./markdown/intro.md",
-            "name": "intro"
-          }]
+          "files": [
+            {
+              "path": "./markdown/intro.md",
+              "name": "intro"
+            }
+          ]
         },
-        "renderMarkdown": {
+        {
+          "name": "renderMarkdown",
           "composers": ["markdownToHtml"]
         },
-        "compileTemplates": {
+        {
+          "name": "compileTemplates",
           "bufferName": "templates",
           "composers": ["compileTemplates"]
         },
-        "renderTemplate": {
-          "composers": ["renderTemplate", "writeOutHtml"], 
-          "files": [{
-            "markdown": "intro",
-            "template": "example",
-            "outputPath": "./output/success.html"
-          }]
+        {
+          "name": "renderTemplate",
+          "composers": ["renderTemplate", "writeOutHtml"],
+          "files": [
+            {
+              "markdown": "intro",
+              "template": "example",
+              "outputPath": "./output/success.html"
+            }
+          ]
         }
-      }
+      ]
     }
   ]
 }

@@ -5,8 +5,8 @@ const Grapefruit = require("./grapefruit");
 
 const config = require("./config/files.json");
 
-function done(file) {
-  console.log("done! \n", JSON.stringify(file, " ", "  "));
+function done() {
+  console.log("Done!");
 }
 
 Grapefruit.composers = {
@@ -97,11 +97,10 @@ config.files.forEach(file => {
   let pipeline = new Grapefruit(file);
   pipeline
     .series([
-      { composers: "readInFile" },
-      { composers: "markdownToHtml" },
-      { composers: "compileTemplates" },
-      { composers: "renderTemplate" },
-      { composers: "writeOutHtml" }
+      { composers: ["readInFile"] },
+      { composers: ["markdownToHtml", "compileTemplates"] },
+      { composers: ["renderTemplate"] },
+      { composers: ["writeOutHtml"] }
     ])
     .then(function() {
       done(file);

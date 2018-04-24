@@ -1,4 +1,5 @@
 var Grapefruit = (function() {
+  const NOT_FOUND = -1;
   Grapefruit.composers = {};
   Grapefruit.globals = {};
 
@@ -9,47 +10,34 @@ var Grapefruit = (function() {
     this.buffers = {};
   }
 
-  function selectJobs(batch, criteria) {
-    let results = [];
-    let filter = function(item) {
-      let keys = Object.keys(criteria);
-      for (let x = 0; x < keys.length; x++) {
-        let key = keys[x];
-        if (item[key].indexOf(criteria[key]) > -1) {
-          return true;
-        }
-        break;
-      };
-      return false;
-    }
-
-    Object.keys(batch).forEach(function(key) {
-      if (Array.isArray(batch[key])) {
-        results = results.concat(batch[key].filter(filter));
-      } else {
-        if (filter(batch[key])) {
-          results = results.concat(batch[key]);
-        }
-      }
+  function selectJobs(set, criteria) {
+    let keys = Object.keys(criteria);
+    return set.filter(obj => {
+      return keys.reduce((flag, key) => {
+        return criteria[key].reduce((flag, val) => {
+          if (obj[key].indexOf(val) > NOT_FOUND) {
+            flag = true;
+          }
+          return flag;
+        }, false);
+      }, false);
     });
-    
-    return results;
   }
 
   Grapefruit.prototype.series = function(criteriaArr) {
     return new Promise((resolve, reject) => {
-      let recurse = (criteriaArr) => {
+      let recurse = criteriaArr => {
         this.compose(criteriaArr.shift()).then(() => {
           if (criteriaArr.length) {
             recurse(criteriaArr);
           } else {
             resolve();
           }
-        })
+        });
       };
       recurse(criteriaArr);
     });
-  }
+  };
 
   Grapefruit.prototype.runComposer = function(job, composerNames) {
     return new Promise(function(resolve, reject) {
@@ -57,8 +45,15 @@ var Grapefruit = (function() {
       let runJobIfNeeded = function(composer) {
         return new Promise(function(resolve, reject) {
           if (!composerNames || composerNames.indexOf(composer) > -1) {
-            console.log("running composer:\n", composer);
-            Grapefruit.composers[composer](job).then((job) => resolve(job));
+            console.log(Date.now().toString(), "Running composer:", composer);
+            Grapefruit.composers[composer](job).then(job => {
+              console.log(
+                Date.now().toString(),
+                "Composer finished:",
+                composer
+              );
+              resolve(job);
+            });
           } else {
             resolve(job);
           }
@@ -94,7 +89,7 @@ var Grapefruit = (function() {
           globals: Grapefruit.globals
         },
         criteria.composers
-      )
+      );
     };
     return Promise.all(jobs.map(jobRunner));
   };
