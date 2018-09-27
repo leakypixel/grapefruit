@@ -3,7 +3,7 @@ You can call me on 07480924132, email me at <hi@leakypixel.net>, or check out w
 
 I'm an individual lucky enough to be paid to do what I love - ranging from React consultancy and training to bespoke web services, media screen systems and linux server configuration/management. 
 
-I've been solving problems with tech for around 8 years and I'm still as eager as ever to push my skills and learn new things. I specialise in JavaScript (both front and back end) and have a penchant for getting the best performance out of applications, workflows and people. 
+I've been solving problems with tech for around 10 years and I'm still as eager as ever to push my skills and learn new things. I specialise in JavaScript (both front and back end) and have a penchant for getting the best performance out of applications, workflows and people. 
 
 ## Skills
 #### JavaScript and related
@@ -105,6 +105,8 @@ I've been solving problems with tech for around 8 years and I'm still as eager a
 
 #### Other
 
+1.   Python and Python-Flask
+
 1.   Agile, Kanban and Scrum
 
 1.   Project management tools (JIRA/Trello)
@@ -139,10 +141,18 @@ I've been solving problems with tech for around 8 years and I'm still as eager a
 
 ## Experience
 
+### The Co-op Group - JavaScript consultant
+*2018, 3 month contract renewed twice single-monthly for a total of 5 months*
+
+As part of the ventures team, built a new marketplace application using react
+for the frontend and python with flask for the backend. Worked in a team of 2 to
+get the project off the ground and into production.
+
+
 ### Life's Great - JavaScript consultant
 *2018, 3 month contract, renewed twice for a total of 6 months*
 
-Training a 10-person team with no prior experience on react/redux/webpack, building and architecture of the front-end react app, CI integration and optimisation of javascript code.
+Training a 10-person team with no prior experience on react/redux/webpack, building and architecture of the front-end react app, which presented questions with complex dependencies in a conditional manner. CI integration and optimisation of javascript code as well as various devops related tasks, such as docker scripts.
 
 
 ### Tyres on the Drive - JavaScript consultant

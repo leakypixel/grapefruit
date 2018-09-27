@@ -60,6 +60,7 @@
 </style>
 </head>
 <body>
-{{{ content }}} {{{ data.test }}}
+{{#each meta.jobs.blog.files}} <a href="{{outputPath}}">{{ name
+}}</a> {{/each}}
 </body>
 </html>

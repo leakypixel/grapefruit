@@ -5,9 +5,8 @@ var Grapefruit = (function() {
 
   function Grapefruit(descriptor) {
     this.name = descriptor.name;
-    this.data = descriptor.data;
+    this.data = descriptor.data || {};
     this.jobs = descriptor.jobs;
-    this.buffers = {};
   }
 
   function selectJobs(set, criteria) {
@@ -45,13 +44,16 @@ var Grapefruit = (function() {
       let runJobIfNeeded = function(composer) {
         return new Promise(function(resolve, reject) {
           if (!composerNames || composerNames.indexOf(composer) > -1) {
-            console.log(Date.now().toString(), "Running composer:", composer);
-            Grapefruit.composers[composer](job).then(job => {
-              console.log(
-                Date.now().toString(),
-                "Composer finished:",
-                composer
-              );
+            //console.log(Date.now().toString(), "Running composer:", composer);
+            const options =
+              (job.currentJob.options && job.currentJob.options[composer]) ||
+              {};
+            Grapefruit.composers[composer](job, options).then(job => {
+              //console.log(
+              //  Date.now().toString(),
+              //  "Composer finished:",
+              //  composer
+              //);
               resolve(job);
             });
           } else {
@@ -85,8 +87,7 @@ var Grapefruit = (function() {
           name: _SELF.name,
           data: _SELF.data,
           jobs: _SELF.jobs,
-          buffers: _SELF.buffers,
-          globals: Grapefruit.globals
+          globals: Grapefruit.globals,
         },
         criteria.composers
       );
