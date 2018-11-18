@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="author" content="Craig Fletcher (leakypixel)">
-<meta name="description" content="CV of Craig Fletcher">
+<meta name="description" content="{{ data.name }}">
 <meta name="viewport" content=
 "width=device-width, initial-scale=1">
-<title>Craig Fletcher's CV</title>
+<title>{{ niceName }}</title>
 
 <style>
     @import url('https://fonts.googleapis.com/css?family=Noto+Sans');
@@ -21,24 +21,20 @@
     a, a:hover, a:active, a:visited {
       color: #4496ba;
     }
-    ol {
-      padding-left: 0;
-    }
-    ol li {
-      font-size: 0.85em;
-      display: inline-block;
-      margin: 0.45em;
-      padding: 0 0.75em;
-      background-color: #72d5ff;
-      line-height: 0.2em;
-      border-radius: 0.2em;
-    }
     h1 {
       margin-bottom: 1.8em;
       margin-top: 2em;
     }
     h2, h3, h4 {
       margin-top: 2.2em;
+    }
+    li {
+      line-height: 1.6em;
+      margin-top: 1em;
+      margin-bottom: 1em;
+    }
+    ol {
+      margin-bottom: 3em;
     }
     @media print {
       body {
@@ -60,6 +56,6 @@
 </style>
 </head>
 <body>
-{{{ content }}} {{{ data.test }}}
+{{{ content }}}
 </body>
 </html>

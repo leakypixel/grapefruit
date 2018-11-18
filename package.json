@@ -4,7 +4,7 @@
   "description": "A simple asset composer.",
   "main": "grapefruit.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "node .npm-scripts/build.js"
   },
   "repository": {
     "type": "git",

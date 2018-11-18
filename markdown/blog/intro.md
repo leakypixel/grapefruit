@@ -1,211 +1,61 @@
-# Hello, I'm Craig Fletcher.
-You can call me on 07480924132, email me at <hi@leakypixel.net>, or check out what I'm getting on with at [leakypixel.net](https://www.leakypixel.net/).
+# Initial build
+The initial build will cover a purely client side app, faking server calls in
+order to give an indication of the final product's utility and allow the end
+client to determine if this is a commercially viable proposition. As it is a
+product meant for testing, it should be robust in it's error handling and
+reporting, as well as give a good indication of the final product's "feel". 
+
+1. The home page should be a simple, static page with a hero section and space
+   for client-supplied content.
+2. Navigation includes login and register buttons. 
+    1. Login button shows a login page, containing a login form. The username
+       and password here are to be hard coded and used in client side code. This
+       is only to give the test audience a feeling for how the final product
+       will work and is not intended to provide any meaningful security.
+    2. Register button shows a register form which is entirely non-functional.
+       The user will be able to fill in fields and click the submit button,
+       however there will be no effect.
+3. Once "logged in", a user will be presented with a dashboard allowing them to
+   create a new document or pick up a saved one. These saved documents will be
+   entirely in client side localstorage. This means that the documents will not
+   pass between devices, nor between browsers or clearing of web data (cookies,
+   etc.).
+4. Upon clicking the call to action to create a new document, the user will be
+   presented with a "search" screen. This will allow the user to enter a term,
+   click submit and get back a list of keywords as supplied by the google API.
+    1. The keywords will be displayed on a user-selectable list as "results"
+       below the search field. 
+    2. Upon clicking one of the keywords, it is added to the "basket" and shows
+       a selected state. Clicking the keyword again removes it from the
+       "basket" and it reverts to it's original state.
+5. Once a user is satisfied with their selection of keywords, they can
+   submit this part of the page and be taken to the text editor.
+    1. The text editor should offer common options available in word processors,
+       such as making the highlighted text bold or italic. The exact options
+       required here are as yet unknown, though using an off-the-shelf library
+       for this purpose has been discussed. For the initial build as described
+       in this document, an off-the-shelf library will be integrated and no
+       modifications will be made. The option to develop a custom solution or
+       modify an existing library would be available as a separate project.
+    2. To the right of the text editor, the keywords selected in the previous
+       part of the page should be visible in an "unchecked" or dimmed state.
+    3. As text is entered into the text editor, it should highlight and "check
+       off" the keywords selected in the previous form.
+6. At any point the user chooses, they should be able to submit the text in the
+   editor and receive an analysis.
+    1. The text in the editor will be sent to another google API, which will
+       provide various details on the text. 
+    2. The details provided by the google analysis API should be surfaced on the
+       page, below the text editor. The exact details that are to be displayed
+       need to be confirmed, but anything returned by the google API is
+       feasible.
+    3. The user should also be presented with a save option (as described
+       earlier) that should emulate saving to a server but only save to
+       localstorage. 
+    4. The user should, from the analysis part of the form, also be able to step
+       back through "revisions". A new revision is created every time the user
+       causes the analysis to be run.
+7. Moving backward in the flow should always be possible, though it will change
+   data further along the form. This may be a destructive action, but we will
+   attempt to prevent this where possible.
 
-I'm an individual lucky enough to be paid to do what I love - ranging from React consultancy and training to bespoke web services, media screen systems and linux server configuration/management. 
-
-I've been solving problems with tech for around 10 years and I'm still as eager as ever to push my skills and learn new things. I specialise in JavaScript (both front and back end) and have a penchant for getting the best performance out of applications, workflows and people. 
-
-## Skills
-#### JavaScript and related
-1.   JavaScript
-
-1.   React (redux, immutable, reselect, sagas and training)
-
-1.   Performance tuning (both delivery and code)
-
-1.   jQuery
-
-1.   Client-side templating (Handlebars/Mustache/jst)
-
-1.   TypeScript
-
-1.   Backbone
-
-1.   Module loading and dynamic dependency resolution
-
-1.   Testing and automation (Jasmine/Karma/Istanbul/Selenium/Travis CI)
-
-1.   Build systems (Grunt/Gulp)
-
-1.   WebSockets (Pusher/native)
-
-1.   Various 3rd party APIs (twitter, rollbar, g suite, many more)
-
-1.   OLOO and Prototype patterns
-
-1.   Modern ECMA script (ES5, 6 and 7)
-
-1.   NodeJS
-
-1.   Event-based and microservice architectures
-
-1.   AngularJS 1 and 2
-
-1.   Functional programming (JS and Python)
-
-1.   Isomorphic applications
-
-1.   npm 
-
-1.   Document DBs (Mongo/Couchbase)
-
-#### Design-related
-
-1.   Sass/SCSS/LESS
-
-1.   Responsive design
-
-1.   Modular design and web components
-
-1.   Test and behaviour-driven development
-
-1.   BEM/SMACSS
-
-1.   Image manipulation (Photoshop/GIMP/Inkscape/ImageMagick)
-
-1.   Accessibility/Information hierarchy
-
-1.   Progressive enhancement
-
-1.   W3C Standards
-
-1.   Cross browser compatibility
-
-1.   HTML 4 and 5
-
-1.   UX and data-driven design
-
-#### DevOps
-
-1.   Digital ocean
-
-1.   AWS
-
-1.   Vagrant
-
-1.   Continuous integration (Jenkins/Travis)
-
-1.   Building appliances/discreet servers (Raspberry Pi/Intel Atom SoC)
-
-1.   Git (GitHub/CLI/GitHooks/Workflows/Generally the go-to guy for git solutions)
-
-1.   SVN
-
-1.   Docker and docker-compose (using, maintaining, creating and optimising images)
-
-1.   Bash (day to day environment and scripting, I'm a bit of a shell nerd)
-
-1.   Analytics (Google/server stats/pingdom/custom built)
-
-1.   Basic server administration (SSH/nginx/Apache)
-
-1.   Versioning (npm/git tags/artifactory/docker images)
-
-1.   Linux/UNIX-like OSes (Debian linux/Arch linux/FreeBSD)
-
-#### Other
-
-1.   Python and Python-Flask
-
-1.   Agile, Kanban and Scrum
-
-1.   Project management tools (JIRA/Trello)
-
-1.   Markdown
-
-1.   CLI text processing (Sed/Awk/Grep)
-
-1.   Vim
-
-
-#### Experience of
-
-1.   PHP
-
-1.   .NET
-
-1.   Wordpress
-
-1.   Magento
-
-1.   Java (Spring)
-
-1.   Python
-
-1.   Ruby (Rails)
-
-1.   Golang (Iris)
-
-1.   Cordova/PhoneGap
-
-
-## Experience
-
-### The Co-op Group - JavaScript consultant
-*2018, 3 month contract renewed twice single-monthly for a total of 5 months*
-
-As part of the ventures team, built a new marketplace application using react
-for the frontend and python with flask for the backend. Worked in a team of 2 to
-get the project off the ground and into production.
-
-
-### Life's Great - JavaScript consultant
-*2018, 3 month contract, renewed twice for a total of 6 months*
-
-Training a 10-person team with no prior experience on react/redux/webpack, building and architecture of the front-end react app, which presented questions with complex dependencies in a conditional manner. CI integration and optimisation of javascript code as well as various devops related tasks, such as docker scripts.
-
-
-### Tyres on the Drive - JavaScript consultant
-*2017, 3 month contract, renewed 4 times for a total of 12 months*
-
-Rebuilding the front end react app using react and redux, training the team on react, building CI/deployment pipelines and assisting moving from a monolithic to micorservices-based architecture, as well as various small internal projects and assisting with day-to-day running of the tech team.
-
-
-### The Hut Group - JavaScript developer
-*2016, 3 month contract, renewed 4 times for a total of 12 months*
-
-Worked on both internal and external projects, including:
-
--   Implementation of githook-based commit quality checking across the core platform
-
--   Componentisation of an existing codebase
-
--   Full site builds for external clients
-
--   NodeJS-based CMS APIs
-
--   Rework and performance improvements of an existing site
-
--   Integration of CMS into existing site
-
--   Development of a custom CMS in Angular 2
-
--   Developing unit tests using Jasmine and Cucumber, with Istanbul for coverage
-
--   Developing integration tests using Selenium and WebDriver
-
-
-### Bet365 - JavaScript developer
-*2015, 6 month contract*
-
-Helping rebuild the front end of the Bet365 site in HTML5, CSS and TypeScript. In particular, I contributed to the build system, including linting, autoformatting and code style checking. Using the build system, we were able to greatly cut down time spent in code reviews and reduce the number of bugs making it through to testing. 
-
-
-### On The Beach ltd. - Front end developer
-*2013 - 2015, permanent*
-
-Working on a travel search and booking website visited by thousands of people all over the UK on a daily basis, plus foreign-marketed versions of the same functionality. I was the first member of the front end team at On The Beach ltd., and during my 2 years there, I helped bring about many changes in the way that the front end of the sites were handled - such as strict coding guidelines and a componentisation of our legacy SCSS, HTML/ERB and JavaScript. In order to improve the quality of our JavaScript code, we used Jasmine to write unit tests along with Cucumber to describe features. 
-
-
-## I'm not boring
-
-I have quite a few hobbies outside of my development work, and try to keep myself as active as I can - especially during the summer, when I can get outside. 
-
--   Rock climbing and bouldering are my big hobbies... though they  don't look a lot different from the outside, there's quite a  gap. I vary between the two, but practice indoors twice a week and  get outside when I can. 
-
--   Somehow I ended up being a Scout leader, too. I was part of the  organisation when I was younger, and after a couple of years  break, I went back to help out. It has greatly helped me in  maintaining leadership skills, and organising larger groups of  people. 
-
--   I also spend quite a lot of my free time tinkering and working on  personal projects, such as building raspberry pi based camera  systems, monitors, or arcade systems - sometimes as paid work, sometimes  just for fun. 
-
--   To keep up with the fast-paced world of development, I spend quite a  lot of my free time reading, or listening to podcasts. Some of my  favourites are 99 percent invisible, late night linux, coder radio  and project bouldering. 
-     

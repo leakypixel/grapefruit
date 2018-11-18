@@ -12,6 +12,7 @@ function blogMeta(metaData, file) {
     path: metaData.path,
     outputPath: `/blog/${metaData.name}.html`,
     name: metaData.name,
+    niceName: metaData.name.replace(/-/g, " "),
   };
 }
 module.exports = {
@@ -35,7 +36,7 @@ module.exports = {
           options: {
             renderTemplate: {
               templateJobName: "template",
-              templateName: "example",
+              templateName: "blog-entryz",
             },
             writeOutFile: {
               outputDir: "./output",
@@ -56,19 +57,22 @@ module.exports = {
           },
           files: [
             {
-              path: "./templates/example.html",
+              path: "./templates/blog-entry.html",
             },
             {
-              path: "./templates/example2.html",
+              path: "./templates/listing.html",
+            },
+            {
+              path: "./templates/index.html",
             },
           ],
         },
         {
-          name: "listing",
+          name: "index",
           options: {
             renderTemplate: {
               templateJobName: "template",
-              templateName: "example2",
+              templateName: "index",
             },
             writeOutFile: {
               outputDir: "./output",
@@ -84,7 +88,7 @@ module.exports = {
             "renderTemplate",
             "writeOutFile",
           ],
-          files: ["./markdown/test.md"],
+          files: ["./markdown/intro.md"],
         },
       ],
     },
