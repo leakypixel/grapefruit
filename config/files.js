@@ -2,17 +2,25 @@ function meta(metaData, file) {
   return {
     ...file,
     path: metaData.path,
-    outputPath: `${metaData.name}.html`,
+    outputPath: `${metaData.name}`,
+    outputExtension: ".html",
     name: metaData.name,
   };
 }
 function blogMeta(metaData, file) {
+  const introStart = file.content.indexOf("<p>") + 3;
+  const blurb = file.content.substring(
+    introStart,
+    file.content.indexOf("</p>")
+  );
   return {
     ...file,
     path: metaData.path,
-    outputPath: `/blog/${metaData.name}.html`,
+    outputPath: `/blog/${metaData.name}`,
+    outputExtension: ".html",
     name: metaData.name,
     niceName: metaData.name.replace(/-/g, " "),
+    blurb: blurb,
   };
 }
 module.exports = {
@@ -36,7 +44,7 @@ module.exports = {
           options: {
             renderTemplate: {
               templateJobName: "template",
-              templateName: "blog-entryz",
+              templateName: "blog-entry",
             },
             writeOutFile: {
               outputDir: "./output",
@@ -72,7 +80,7 @@ module.exports = {
           options: {
             renderTemplate: {
               templateJobName: "template",
-              templateName: "index",
+              templateName: "listing",
             },
             writeOutFile: {
               outputDir: "./output",

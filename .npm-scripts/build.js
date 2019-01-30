@@ -14,7 +14,7 @@ Grapefruit.composers = {
   compileTemplates: require("./composers/compileTemplates.js"),
   renderTemplate: require("./composers/renderTemplate.js"),
   markdownToHtml: require("./composers/markdownToHtml.js"),
-  parseJson: require("./composers/parseJson.js"),
+  parseJson: require("./composers/parseJson.js")
 };
 
 config.files.forEach(file => {
@@ -22,10 +22,11 @@ config.files.forEach(file => {
   pipeline
     .series([
       { composers: ["listDirectory"] },
-      { composers: ["readInFile", "parseJson", "decorateFileObject"] },
+      { composers: ["readInFile", "parseJson"] },
       { composers: ["markdownToHtml", "compileTemplates"] },
+      { composers: ["decorateFileObject"] },
       { composers: ["renderTemplate"] },
-      { composers: ["writeOutFile"] },
+      { composers: ["writeOutFile"] }
     ])
     .then(function() {
       done(file);

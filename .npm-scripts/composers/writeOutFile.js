@@ -4,8 +4,10 @@ module.exports = function(input, options) {
     Promise.all(
       input.currentJob.files.map(file => {
         return fs.write({
-          path: `${options.outputDir}/${file.outputPath}`,
-          content: file.content,
+          path: `${options.outputDir}/${file.outputPath}${
+            file.outputExtension
+          }`,
+          content: file.content
         });
       })
     )
