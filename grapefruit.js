@@ -1,109 +1,79 @@
-var Grapefruit = (function() {
-  const NOT_FOUND = -1;
-  Grapefruit.composers = {};
-  Grapefruit.globals = {};
+const Grapefruit = config => {
+  let history = [];
 
-  function Grapefruit(descriptor) {
-    this.name = descriptor.name;
-    this.data = descriptor.data || {};
-    this.jobs = descriptor.jobs;
-  }
+  let funcs = {};
 
-  function selectJobs(set, criteria) {
-    let keys = Object.keys(criteria);
-    return set.filter(obj => {
-      return keys.reduce((flag, key) => {
-        return criteria[key].reduce((flag, val) => {
-          if (obj[key].indexOf(val) > NOT_FOUND) {
-            flag = true;
-          }
-          return flag;
-        }, false);
-      }, false);
-    });
-  }
+  const registerFunc = (name, func) => (funcs[name] = func);
 
-  Grapefruit.prototype.series = function(criteriaArr) {
-    return new Promise((resolve, reject) => {
-      let recurse = criteriaArr => {
-        this.compose(criteriaArr.shift()).then(() => {
-          if (criteriaArr.length) {
-            recurse(criteriaArr);
-          } else {
-            resolve();
-          }
-        });
-      };
-      recurse(criteriaArr);
-    });
-  };
-
-  Grapefruit.prototype.runComposer = function(job, composerNames) {
-    return new Promise(function(resolve, reject) {
-      let index = 0;
-      let runJobIfNeeded = function(composer) {
-        return new Promise(function(resolve, reject) {
-          if (!composerNames || composerNames.indexOf(composer) > -1) {
-            console.log(
-              Date.now().toString(),
-              "Running composer:",
-              composer,
-              "on job:",
-              job.currentJob.name
-            );
-            const options =
-              (job.currentJob.options && job.currentJob.options[composer]) ||
-              {};
-            Grapefruit.composers[composer](job, options)
-              .then(job => {
-                console.log(
-                  Date.now().toString(),
-                  "Composer finished:",
-                  composer
-                );
-                resolve(job);
-              })
-              .catch(e => console.log("caught:", e));
-          } else {
-            resolve(job);
-          }
-        });
-      };
-
-      let recurse = function(job, done) {
-        runJobIfNeeded(job.currentJob.composers[index]).then(function(job) {
-          if (index < job.currentJob.composers.length) {
-            index++;
-            recurse(job, done);
-          } else {
-            done(job);
-          }
-        });
-      };
-
-      recurse(job, resolve);
-    });
-  };
-
-  Grapefruit.prototype.compose = function(criteria) {
-    let _SELF = this;
-    let jobs = selectJobs(this.jobs, criteria);
-    let jobRunner = function(job) {
-      return _SELF.runComposer(
-        {
-          currentJob: job,
-          name: _SELF.name,
-          data: _SELF.data,
-          jobs: _SELF.jobs,
-          globals: Grapefruit.globals,
-        },
-        criteria.composers
-      );
+  const runStep = (state, step) => {
+    const selectors = {
+      selectMany: filter => state.filter(filter),
+      selectByTag: tag =>
+        state.filter(item => item.tags && item.tags.includes(tag)),
+      selectOne: filter => state.find(filter)
     };
-    return Promise.all(jobs.map(jobRunner));
+
+    return step.map(func => {
+      if (!funcs[func.name]) {
+        throw new Error(`Named function does not exist: ${func.name}`);
+      }
+
+      const stepConfig = Object.assign(
+        {},
+        func.config,
+        func.getConfig && func.getConfig(selectors)
+      );
+
+      if (func.selector) {
+        const selectedState = [].concat(func.selector(selectors));
+        return selectedState.map(item => funcs[func.name](stepConfig, item));
+      } else {
+        console.log(
+          `Function ${func.name} has no selector, running as single instance.`
+        );
+        return funcs[func.name](stepConfig);
+      }
+    });
   };
 
-  return Grapefruit;
-})();
+  const runPipeline = pipeline => {
+    return new Promise(resolve => {
+      const doStep = (state, steps) => {
+        if (config.keepHistory) {
+          history.push(state);
+        }
+
+        const step = runStep(state, steps[0]);
+
+        Promise.all(step.flat())
+          .then(res => {
+            const newState = res.flat();
+            if (steps.length > 1) {
+              doStep(newState, steps.slice(1));
+            } else {
+              if (config.keepHistory) {
+                history.push(newState);
+              }
+              resolve(newState);
+            }
+          })
+          .catch(e => console.log("Error caught:", e));
+      };
+
+      if (pipeline.getInitialState) {
+        doStep(pipeline.getInitialState(pipeline), pipeline.steps);
+      } else {
+        doStep(pipeline.initialState || [], pipeline.steps);
+      }
+    });
+  };
+
+  return {
+    registerFunc,
+    config,
+    runPipeline,
+    history
+  };
+};
 
 module.exports = Grapefruit;

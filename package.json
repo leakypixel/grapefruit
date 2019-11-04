@@ -1,11 +1,8 @@
 {
   "name": "grapefruit",
-  "version": "0.0.1",
-  "description": "A simple asset composer.",
+  "version": "1.0.1",
+  "description": "A simple pipeline runner.",
   "main": "grapefruit.js",
-  "scripts": {
-    "build": "node .npm-scripts/build.js"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/leakypixel/grapefruit.git"
@@ -14,12 +11,6 @@
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/leakypixel/grapefruit/issues"
-  },
-  "dependencies": {
-    "careless-fs": "^1.0.0",
-    "handlebars": "^4.0.12",
-    "html-minifier": "^3.5.21",
-    "markdown": "^0.5.0"
   },
   "homepage": "https://github.com/leakypixel/grapefruit#readme"
 }

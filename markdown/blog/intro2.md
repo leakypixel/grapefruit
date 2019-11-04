@@ -1,3 +1,0 @@
-iBalrg!
-
-# Blarg, from apple.
