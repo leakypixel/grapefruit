@@ -1,6 +1,6 @@
 const Grapefruit = require("./grapefruit");
 
-const config = require("../config/files");
+const config = require("./config/files");
 
 function done(file) {
   console.log("Done!");
@@ -10,12 +10,12 @@ Grapefruit.composers = {
   listDirectory: require("./composers/listDirectory.js"),
   decorateFileObject: require("./composers/decorateFileObject.js"),
   readInFile: require("./composers/readInFile.js"),
-  minifyHtml: require("./composers/minifyHtml.js"),
   writeOutFile: require("./composers/writeOutFile.js"),
   compileTemplates: require("./composers/compileTemplates.js"),
   renderTemplate: require("./composers/renderTemplate.js"),
   markdownToHtml: require("./composers/markdownToHtml.js"),
-  parseJson: require("./composers/parseJson.js")
+  copyFile: require("./composers/copyFile.js"),
+  parseJson: require("./composers/parseJson.js"),
 };
 
 config.files.forEach(file => {
@@ -23,12 +23,11 @@ config.files.forEach(file => {
   pipeline
     .series([
       { composers: ["listDirectory"] },
-      { composers: ["readInFile", "parseJson"] },
+      { composers: ["readInFile", "decorateFileObject"] },
+      { composers: ["parseJson"] },
       { composers: ["markdownToHtml", "compileTemplates"] },
-      { composers: ["decorateFileObject"] },
       { composers: ["renderTemplate"] },
-      { composers: ["minifyHtml"] },
-      { composers: ["writeOutFile"] }
+      { composers: ["writeOutFile", "copyFile"] },
     ])
     .then(function() {
       done(file);

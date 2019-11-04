@@ -39,6 +39,7 @@ module.exports = {
             "readInFile",
             "markdownToHtml",
             "renderTemplate",
+            "minifyHtml",
             "writeOutFile",
           ],
           options: {
