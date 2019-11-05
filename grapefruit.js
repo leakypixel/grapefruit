@@ -1,9 +1,6 @@
 const Grapefruit = config => {
   let history = [];
-
-  let funcs = {};
-
-  const registerFunc = (name, func) => (funcs[name] = func);
+  const funcs = config.funcs;
 
   const runStep = (state, step) => {
     const selectors = {
@@ -13,7 +10,7 @@ const Grapefruit = config => {
       selectOne: filter => state.find(filter)
     };
 
-    return step.map(func => {
+    return step.reduce((acc, func) => {
       if (!funcs[func.name]) {
         throw new Error(`Named function does not exist: ${func.name}`);
       }
@@ -26,14 +23,16 @@ const Grapefruit = config => {
 
       if (func.selector) {
         const selectedState = [].concat(func.selector(selectors));
-        return selectedState.map(item => funcs[func.name](stepConfig, item));
+        return acc.concat(
+          selectedState.map(item => funcs[func.name](stepConfig, item))
+        );
       } else {
         console.log(
           `Function ${func.name} has no selector, running as single instance.`
         );
-        return funcs[func.name](stepConfig);
+        return acc.concat(funcs[func.name](stepConfig));
       }
-    });
+    }, []);
   };
 
   const runPipeline = pipeline => {
