@@ -1,38 +1,52 @@
 const Grapefruit = config => {
   let history = [];
   const funcs = config.funcs;
+  const curryFunc = (config, func) => {
+    return item => func(config, item);
+  };
 
   const runStep = (state, step) => {
-    const selectors = {
-      selectMany: filter => state.filter(filter),
-      selectByTag: tag =>
-        state.filter(item => item.tags && item.tags.includes(tag)),
-      selectOne: filter => state.find(filter)
-    };
+    return new Promise((resolve, reject) => {
+      const selectors = {
+        selectAll: () => state,
+        selectMany: filter => state.filter(filter),
+        selectByTag: tag =>
+          state.filter(item => item.tags && item.tags.includes(tag)),
+        selectOne: filter => state.find(filter)
+      };
 
-    return step.reduce((acc, func) => {
-      if (!funcs[func.name]) {
-        throw new Error(`Named function does not exist: ${func.name}`);
-      }
+      Promise.all(
+        step.reduce((actions, func) => {
+          if (!funcs[func.name]) {
+            throw new Error(`Named function does not exist: ${func.name}`);
+          }
 
-      const stepConfig = Object.assign(
-        {},
-        func.config,
-        func.getConfig && func.getConfig(selectors)
-      );
+          const stepConfig = Object.assign(
+            {},
+            func.config,
+            func.getConfig && func.getConfig(selectors)
+          );
+          const curriedFunc = curryFunc(stepConfig, funcs[func.name]);
 
-      if (func.selector) {
-        const selectedState = [].concat(func.selector(selectors));
-        return acc.concat(
-          selectedState.map(item => funcs[func.name](stepConfig, item))
-        );
-      } else {
-        console.log(
-          `Function ${func.name} has no selector, running as single instance.`
-        );
-        return acc.concat(funcs[func.name](stepConfig));
-      }
-    }, []);
+          if (func.selector) {
+            const selectedState = [].concat(func.selector(selectors));
+            return actions.concat(selectedState.map(item => curriedFunc(item)));
+          } else {
+            console.log(
+              `Function ${
+                func.name
+              } has no selector, running as single instance.`
+            );
+            return actions.concat(curriedFunc(func.item));
+          }
+        }, [])
+      )
+        .then(result => {
+          console.log("Result:", result);
+          resolve(result.flat());
+        })
+        .catch(e => reject(e));
+    });
   };
 
   const runPipeline = pipeline => {
@@ -43,10 +57,8 @@ const Grapefruit = config => {
         }
 
         const step = runStep(state, steps[0]);
-
-        Promise.all(step.flat())
-          .then(res => {
-            const newState = res.flat();
+        step
+          .then(newState => {
             if (steps.length > 1) {
               doStep(newState, steps.slice(1));
             } else {
@@ -68,7 +80,6 @@ const Grapefruit = config => {
   };
 
   return {
-    registerFunc,
     config,
     runPipeline,
     history
