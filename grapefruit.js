@@ -7,9 +7,44 @@ function Grapefruit(config) {
   this.funcs = config.funcs;
 
   this.emitter = config.emitter ? config.emitter : () => null;
+  this.runInstance = (configuredAction, item, actionId) => {
+    const instanceId = Math.round(Math.random() * 1000000);
+    return new Promise((resolve, reject) => {
+      _self.emitter({
+        eventType: "instanceRunning",
+        item,
+        configuredAction,
+        actionId,
+        instanceId
+      });
+      const actionRunner = configuredAction(item);
+      actionRunner
+        .then(result => {
+          _self.emitter({
+            eventType: "instanceComplete",
+            configuredAction,
+            item,
+            actionId,
+            instanceId
+          });
+          resolve(result);
+        })
+        .catch(e => {
+          const error = {
+            ...e,
+            item,
+            instanceId,
+            actionId
+          };
+          _self.emitter(error);
+          reject(error);
+        });
+    });
+  };
 
   this.runStep = (state, step) => {
     return new Promise((resolve, reject) => {
+      const stepId = Math.round(Math.random() * 1000000);
       const selectors = {
         selectAll: () => state,
         selectMany: filter => state.filter(filter),
@@ -20,16 +55,39 @@ function Grapefruit(config) {
 
       Promise.all(
         step.reduce((actions, action) => {
-          const id = Math.round(Math.random() * 1000000);
+          const actionId = Math.round(Math.random() * 1000000);
 
           const actionFunction = _self.funcs[action.func];
           if (!actionFunction) {
             reject({
               message: `Named function ${
                 action.func
-              } does not exist on action ${action.name ? action.name : id}.`,
+              } does not exist on action ${
+                action.name ? action.name : actionId
+              }.`,
               action: action,
-              id
+              actionId
+            });
+          }
+
+          const selectedState = [].concat(
+            action.selector ? action.selector(selectors) : action.item
+          );
+          if (selectedState.length) {
+            _self.emitter({
+              eventType: "stateSelected",
+              selectedState,
+              actionId
+            });
+          } else {
+            reject({
+              message: `Selected no state on action ${
+                action.name ? action.name : actionId
+              }.`,
+              action: action,
+              actionId,
+              selector: action.selector,
+              item: action.item
             });
           }
 
@@ -38,70 +96,29 @@ function Grapefruit(config) {
             action.config,
             action.getConfig && action.getConfig(selectors)
           );
-          const actionWithConfig = applyConfigToFunc(
+          const configuredAction = applyConfigToFunc(
             actionConfig,
             actionFunction
           );
           _self.emitter({
             eventType: "actionConfigured",
-            action,
             actionConfig,
-            id
-          });
-
-          const selectedState = [].concat(
-            action.selector ? action.selector(selectors) : action.item
-          );
-          _self.emitter({
-            eventType: "stateSelected",
-            action,
-            selectedState,
-            id
+            actionId
           });
 
           return actions.concat(
             selectedState.map(item => {
-              return new Promise((resolve, reject) => {
-                _self.emitter({
-                  eventType: "actionRunning",
-                  action,
-                  item,
-                  actionConfig,
-                  id
-                });
-                const actionRunner = actionWithConfig(item);
-                actionRunner
-                  .then(result => {
-                    _self.emitter({
-                      eventType: "actionComplete",
-                      action,
-                      item,
-                      result,
-                      id
-                    });
-                    resolve(result);
-                  })
-                  .catch(e => {
-                    const error = {
-                      action,
-                      item,
-                      id,
-                      ...e
-                    };
-                    _self.emitter(error);
-                    reject(error);
-                  });
-              });
+              return this.runInstance(configuredAction, item, actionId);
             })
           );
         }, [])
       )
         .then(result => {
-          _self.emitter({ eventType: "stepActionsComplete", step, result });
+          _self.emitter({ eventType: "stepComplete", result, stepId });
           resolve(result.flat());
         })
         .catch(e => {
-          reject(e);
+          reject({ ...e, stepId });
         });
     });
   };
@@ -114,16 +131,11 @@ function Grapefruit(config) {
         const step = this.runStep(state, steps[0]);
         step
           .then(newState => {
-            _self.emitter({
-              eventType: "stepComplete",
-              step: steps[0],
-              result: newState
-            });
             if (steps.length > 1) {
               doStep(newState, steps.slice(1));
             } else {
               _self.emitter({ eventType: "newState", state: newState });
-              _self.emitter({ eventType: "pipelineComplete", state: newState });
+              _self.emitter({ eventType: "pipelineComplete" });
               resolve(newState);
             }
           })
