@@ -70,9 +70,15 @@ function Grapefruit(config) {
             });
           }
 
-          const selectedState = [].concat(
-            action.selector ? action.selector(selectors) : action.item
-          );
+          const selectedState = (() => {
+            try {
+              return [].concat(
+                action.selector ? action.selector(selectors) : action.item
+              );
+            } catch (e) {
+              reject({ message: e.toString(), actionId, action });
+            }
+          })();
           if (selectedState.length) {
             _self.emitter({
               eventType: "stateSelected",
@@ -94,11 +100,17 @@ function Grapefruit(config) {
           if (action.deferConfig) {
             return actions.concat(
               selectedState.map(item => {
-                const actionConfig = Object.assign(
-                  {},
-                  action.config,
-                  action.getConfig && action.getConfig(selectors, item)
-                );
+                const actionConfig = (() => {
+                  try {
+                    return Object.assign(
+                      {},
+                      action.config,
+                      action.getConfig && action.getConfig(selectors, item)
+                    );
+                  } catch (e) {
+                    reject({ message: e.toString(), actionId, action });
+                  }
+                })();
                 _self.emitter({
                   eventType: "actionConfigured",
                   actionConfig,
@@ -112,11 +124,17 @@ function Grapefruit(config) {
               })
             );
           }
-          const actionConfig = Object.assign(
-            {},
-            action.config,
-            action.getConfig && action.getConfig(selectors, {})
-          );
+          const actionConfig = (() => {
+            try {
+              return Object.assign(
+                {},
+                action.config,
+                action.getConfig && action.getConfig(selectors, action)
+              );
+            } catch (e) {
+              reject({ message: e.toString(), actionId, action });
+            }
+          })();
           _self.emitter({
             eventType: "actionConfigured",
             actionConfig,
