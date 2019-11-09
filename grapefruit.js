@@ -5,8 +5,8 @@ const applyConfigToFunc = (config, func) => {
 function Grapefruit(config) {
   const _self = this;
   this.funcs = config.funcs;
-
   this.emitter = config.emitter ? config.emitter : () => null;
+
   this.runInstance = (configuredAction, item, actionId) => {
     const instanceId = Math.round(Math.random() * 1000000);
     return new Promise((resolve, reject) => {
@@ -91,21 +91,41 @@ function Grapefruit(config) {
             });
           }
 
+          if (action.deferConfig) {
+            return actions.concat(
+              selectedState.map(item => {
+                const actionConfig = Object.assign(
+                  {},
+                  action.config,
+                  action.getConfig && action.getConfig(selectors, item)
+                );
+                _self.emitter({
+                  eventType: "actionConfigured",
+                  actionConfig,
+                  actionId
+                });
+                const configuredAction = applyConfigToFunc(
+                  actionConfig,
+                  actionFunction
+                );
+                return this.runInstance(configuredAction, item, actionId);
+              })
+            );
+          }
           const actionConfig = Object.assign(
             {},
             action.config,
-            action.getConfig && action.getConfig(selectors)
-          );
-          const configuredAction = applyConfigToFunc(
-            actionConfig,
-            actionFunction
+            action.getConfig && action.getConfig(selectors, {})
           );
           _self.emitter({
             eventType: "actionConfigured",
             actionConfig,
             actionId
           });
-
+          const configuredAction = applyConfigToFunc(
+            actionConfig,
+            actionFunction
+          );
           return actions.concat(
             selectedState.map(item => {
               return this.runInstance(configuredAction, item, actionId);
