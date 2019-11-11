@@ -31,7 +31,7 @@ function Grapefruit(config) {
         })
         .catch(e => {
           const error = {
-            ...e,
+            message: e.toString(),
             item,
             instanceId,
             actionId
