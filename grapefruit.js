@@ -79,7 +79,7 @@ function Grapefruit(config) {
               reject({ message: e.toString(), actionId, action });
             }
           })();
-          if (selectedState.length) {
+          if (selectedState.length || action.allowEmpty) {
             _self.emitter({
               eventType: "stateSelected",
               selectedState,
