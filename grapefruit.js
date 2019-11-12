@@ -1,4 +1,50 @@
+class SearchableState extends Array {
+  constructor(state) {
+    if (state.length) {
+      super(...state);
+    } else {
+      super();
+    }
+  }
+  selectAll() {
+    return this;
+  }
+  selectMany(filter) {
+    //console.log("selectmany filtering", filter, this);
+    return this.filter(filter);
+  }
+  selectByTag(tag) {
+    // console.log("selectbytag filtering", tag, this);
+    return this.filter(item => item.tags && item.tags.includes(tag));
+  }
+  selectOne(filter) {
+    return this.find(filter) || [];
+  }
+  mostMatchingTags(tagList) {
+    //console.log("mostmatchingtags filtering", tagList, this);
+    const sorted = this.sort(
+      (item1, item2) =>
+        item2.tags.filter(tag => tagList.includes(tag)).length -
+        item1.tags.filter(tag => tagList.includes(tag)).length
+    );
+    return sorted[0];
+  }
+  matchingAnyTag(tagList) {
+    return this.filter(item => item.tags.some(tag => tagList.includes(tag)));
+  }
+
+  not(excludeState) {
+    return this.filter(item => !excludeState.includes(item));
+  }
+  and(additionalState) {
+    return this.concat(additionalState);
+  }
+}
+
 const applyConfigToFunc = (config, func) => {
+  if (func.withConfig && typeof func.withConfig === "function") {
+    return func.withConfig(config);
+  }
   return item => func(config, item);
 };
 
@@ -45,14 +91,7 @@ function Grapefruit(config) {
   this.runStep = (state, step) => {
     return new Promise((resolve, reject) => {
       const stepId = Math.round(Math.random() * 1000000);
-      const selectors = {
-        selectAll: () => state,
-        selectMany: filter => state.filter(filter),
-        selectByTag: tag =>
-          state.filter(item => item.tags && item.tags.includes(tag)),
-        selectOne: filter => state.find(filter) || []
-      };
-
+      const selectors = new SearchableState(state);
       Promise.all(
         step.reduce((actions, action) => {
           const actionId = Math.round(Math.random() * 1000000);
