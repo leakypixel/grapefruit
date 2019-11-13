@@ -78,6 +78,7 @@ function Grapefruit(config) {
         .catch(e => {
           const error = {
             message: e.toString(),
+            ...e,
             item,
             instanceId,
             actionId
@@ -115,7 +116,7 @@ function Grapefruit(config) {
                 action.selector ? action.selector(selectors) : action.item
               );
             } catch (e) {
-              reject({ message: e.toString(), actionId, action });
+              reject({ message: e.toString(), ...e, actionId, action });
             }
           })();
           if (selectedState.length || action.allowEmpty) {
@@ -147,7 +148,7 @@ function Grapefruit(config) {
                       action.getConfig && action.getConfig(selectors, item)
                     );
                   } catch (e) {
-                    reject({ message: e.toString(), actionId, action });
+                    reject({ message: e.toString(), ...e, actionId, action });
                   }
                 })();
                 _self.emitter({
@@ -171,7 +172,7 @@ function Grapefruit(config) {
                 action.getConfig && action.getConfig(selectors, action)
               );
             } catch (e) {
-              reject({ message: e.toString(), actionId, action });
+              reject({ message: e.toString(), ...e, actionId, action });
             }
           })();
           _self.emitter({
@@ -195,7 +196,7 @@ function Grapefruit(config) {
           resolve(result.flat());
         })
         .catch(e => {
-          reject({ ...e, stepId });
+          reject({ message: e.toString(), ...e, stepId });
         });
     });
   };
