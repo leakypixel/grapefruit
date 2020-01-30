@@ -1,7 +1,11 @@
-class SearchableState extends Array {
+class TaggedState extends Array {
   constructor(state) {
     if (state.length) {
-      super(...state);
+      try {
+        super(...state.flat());
+      } catch (e) {
+        throw new Error("Failed to create new state");
+      }
     } else {
       super();
     }
@@ -58,8 +62,7 @@ function Grapefruit(config) {
     return new Promise((resolve, reject) => {
       _self.emitter({
         eventType: "instanceRunning",
-        item,
-        configuredAction,
+        item: JSON.stringify(item),
         actionId,
         instanceId
       });
@@ -68,8 +71,7 @@ function Grapefruit(config) {
         .then(result => {
           _self.emitter({
             eventType: "instanceComplete",
-            configuredAction,
-            item,
+            item: JSON.stringify(item),
             actionId,
             instanceId
           });
@@ -78,8 +80,8 @@ function Grapefruit(config) {
         .catch(e => {
           const error = {
             message: e.toString(),
-            ...e,
-            item,
+            error: JSON.stringify(e),
+            item: JSON.stringify(item),
             instanceId,
             actionId
           };
@@ -90,121 +92,129 @@ function Grapefruit(config) {
   };
 
   this.runStep = (state, step) => {
-    return new Promise((resolve, reject) => {
-      const stepId = Math.round(Math.random() * 1000000);
-      const selectors = new SearchableState(state);
-      Promise.all(
-        step.reduce((actions, action) => {
-          const actionId = Math.round(Math.random() * 1000000);
+    const stepId = Math.round(Math.random() * 1000000);
+    const selectors = new TaggedState(state);
+    return Promise.all(
+      step.reduce((actions, action) => {
+        const actionId = Math.round(Math.random() * 1000000);
 
-          const actionFunction = _self.funcs[action.func];
-          if (!actionFunction) {
-            reject({
-              message: `Named function ${
-                action.func
-              } does not exist on action ${
-                action.name ? action.name : actionId
-              }.`,
-              action: action,
-              actionId
-            });
-          }
-
-          const selectedState = (() => {
-            try {
-              return [].concat(
-                action.selector ? action.selector(selectors) : action.item
-              );
-            } catch (e) {
-              reject({ message: e.toString(), ...e, actionId, action });
-            }
-          })();
-          if (selectedState.length || action.allowEmpty) {
-            _self.emitter({
-              eventType: "stateSelected",
-              selectedState,
-              actionId
-            });
-          } else {
-            reject({
-              message: `Selected no state on action ${
-                action.name ? action.name : actionId
-              }.`,
-              action: action,
-              actionId,
-              selector: action.selector,
-              item: action.item
-            });
-          }
-
-          if (action.deferConfig) {
-            return actions.concat(
-              selectedState.map(item => {
-                const actionConfig = (() => {
-                  try {
-                    return Object.assign(
-                      {},
-                      action.config,
-                      action.getConfig && action.getConfig(selectors, item)
-                    );
-                  } catch (e) {
-                    reject({ message: e.toString(), ...e, actionId, action });
-                  }
-                })();
-                _self.emitter({
-                  eventType: "actionConfigured",
-                  actionConfig,
-                  actionId
-                });
-                const configuredAction = applyConfigToFunc(
-                  actionConfig,
-                  actionFunction
-                );
-                return this.runInstance(configuredAction, item, actionId);
-              })
-            );
-          }
-          const actionConfig = (() => {
-            try {
-              return Object.assign(
-                {},
-                action.config,
-                action.getConfig && action.getConfig(selectors, action)
-              );
-            } catch (e) {
-              reject({ message: e.toString(), ...e, actionId, action });
-            }
-          })();
-          _self.emitter({
-            eventType: "actionConfigured",
-            actionConfig,
+        const actionFunction = _self.funcs[action.func];
+        if (!actionFunction) {
+          reject({
+            message: `Named function ${action.func} does not exist on action ${
+              action.name ? action.name : actionId
+            }.`,
+            action: JSON.stringify(action),
             actionId
           });
-          const configuredAction = applyConfigToFunc(
-            actionConfig,
-            actionFunction
-          );
+        }
+
+        const selectedState = (() => {
+          try {
+            return [].concat(
+              action.selector ? action.selector(selectors) : action.item
+            );
+          } catch (e) {
+            console.log("Failed state");
+            reject({
+              message: e.toString(),
+              error: JSON.stringify(e),
+              actionId,
+              action: JSON.stringify(action)
+            });
+          }
+        })();
+        if (selectedState.length || action.allowEmpty) {
+          _self.emitter({
+            eventType: "stateSelected",
+            selectedState: JSON.stringify(selectedState),
+            actionId
+          });
+        } else {
+          reject({
+            message: `Selected no state on action ${
+              action.name ? action.name : actionId
+            }.`,
+            action: JSON.stringify(action),
+            actionId,
+            selector: JSON.stringify(action.selector),
+            item: JSON.stringify(action.item)
+          });
+        }
+
+        if (action.deferConfig) {
           return actions.concat(
             selectedState.map(item => {
+              const actionConfig = (() => {
+                try {
+                  return Object.assign(
+                    {},
+                    action.config,
+                    action.getConfig && action.getConfig(selectors, item)
+                  );
+                } catch (e) {
+                  reject({
+                    message: e.toString(),
+                    ...e,
+                    actionId,
+                    action: JSON.stringify(action)
+                  });
+                }
+              })();
+              _self.emitter({
+                eventType: "actionConfigured",
+                actionConfig: JSON.stringify(actionConfig),
+                action: JSON.stringify(action),
+                actionId
+              });
+              const configuredAction = applyConfigToFunc(
+                actionConfig,
+                actionFunction
+              );
               return this.runInstance(configuredAction, item, actionId);
             })
           );
-        }, [])
-      )
-        .then(result => {
-          _self.emitter({ eventType: "stepComplete", result, stepId });
-          resolve(result.flat());
-        })
-        .catch(e => {
-          reject({ message: e.toString(), ...e, stepId });
+        }
+        const actionConfig = (() => {
+          try {
+            return Object.assign(
+              {},
+              action.config,
+              action.getConfig && action.getConfig(selectors, action)
+            );
+          } catch (e) {
+            console.log("Failed config");
+            reject({
+              message: e.toString(),
+              error: JSON.stringify(e),
+              actionId,
+              action: JSON.stringify(action)
+            });
+          }
+        })();
+        _self.emitter({
+          eventType: "actionConfigured",
+          actionConfig: JSON.stringify(actionConfig),
+          action: JSON.stringify(action),
+          actionId
         });
-    });
+        const configuredAction = applyConfigToFunc(
+          actionConfig,
+          actionFunction
+        );
+        return actions.concat(
+          selectedState.map(item => {
+            return this.runInstance(configuredAction, item, actionId);
+          })
+        );
+      }, [])
+    );
   };
 
   this.runPipeline = pipeline => {
     return new Promise((resolve, reject) => {
       const doStep = (state, steps) => {
-        _self.emitter({ eventType: "newState", state: state });
+        _self.emitter({ eventType: "newState", state: JSON.stringify(state) });
 
         const step = this.runStep(state, steps[0]);
         step
@@ -212,13 +222,21 @@ function Grapefruit(config) {
             if (steps.length > 1) {
               doStep(newState, steps.slice(1));
             } else {
-              _self.emitter({ eventType: "newState", state: newState });
+              _self.emitter({
+                eventType: "newState",
+                state: JSON.stringify(newState)
+              });
               _self.emitter({ eventType: "pipelineComplete" });
               resolve(newState);
             }
           })
           .catch(e => {
-            const error = { eventType: "error", ...e, step: steps[0] };
+            const error = {
+              eventType: "error",
+              ...e,
+              error: JSON.stringify(e),
+              step: JSON.stringify(steps[0])
+            };
             _self.emitter(error);
             reject(error);
           });
