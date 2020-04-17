@@ -29,8 +29,13 @@ class SearchableState extends Array {
     );
     return sorted[0];
   }
+
   matchingAnyTag(tagList) {
     return this.filter(item => item.tags.some(tag => tagList.includes(tag)));
+  }
+
+  matchingAllTags(tagList) {
+    return this.filter(item => tagList.every(tag => item.tags.includes(tag)));
   }
 
   not(excludeState) {
